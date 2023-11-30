@@ -14,20 +14,20 @@
           <a href="{% url "dashboard" %}">My dashboard</a>
         </li>
         <li {% if section == "images" %}class="selected"{% endif %}>
-          <a href="{% url 'images:list' %}">Images</a>
+          <a href="{% url "images:list" %}">Images</a>
         </li>
         <li {% if section == "people" %}class="selected"{% endif %}>
-          <a href="#">People</a>
+          <a href="{% url "user_list" %}">People</a>
         </li>
       </ul>
     {% endif %}
     <span class="user">
-    {% if request.user.is_authenticated %}
-      Hello {{ request.user.first_name|default:request.user.username }},
-      <a href="{% url "logout" %}">Logout</a>
-    {% else %}
-      <a href="{% url "login" %}">Log-in</a>
-    {% endif %}
+      {% if request.user.is_authenticated %}
+        Hello {{ request.user.first_name|default:request.user.username }},
+        <a href="{% url "logout" %}">Logout</a>
+      {% else %}
+        <a href="{% url "login" %}">Log-in</a>
+      {% endif %}
     </span>
   </div>
   {% if messages %}
@@ -48,7 +48,7 @@
   <script>
     const csrftoken = Cookies.get('csrftoken');
     document.addEventListener('DOMContentLoaded', (event) => {
-      // DOM загружен
+      // DOM loaded
       {% block domready %}
       {% endblock %}
     })
