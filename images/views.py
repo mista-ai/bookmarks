@@ -1,33 +1,33 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import ImageCreateForm
-from .models import Image
+from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage, \
+    PageNotAnInteger
+from .forms import ImageCreateForm
+from .models import Image
 
 
 @login_required
 def image_create(request):
     if request.method == 'POST':
-        # форма отправлена
+        # form is sent
         form = ImageCreateForm(data=request.POST)
         if form.is_valid():
-            # данные в форме валидны
+            # form data is valid
             cd = form.cleaned_data
             new_image = form.save(commit=False)
-            # назначить текущего пользователя элементу
+            # assign current user to the item
             new_image.user = request.user
             new_image.save()
             messages.success(request, 'Image added successfully')
-            # перенаправить к представлению детальной
-            # информации о только что созданном элементе
+            # redirect to new created image detail view
             return redirect(new_image.get_absolute_url())
     else:
-        # скомпоновать форму с данными,
-        # предоставленными букмарклетом методом GET
+        # build form with data provided by the bookmarklet via GET
         form = ImageCreateForm(data=request.GET)
     return render(request, 'images/image/create.html', {'section': 'images', 'form': form})
 
@@ -64,16 +64,14 @@ def image_list(request):
     try:
         images = paginator.page(page)
     except PageNotAnInteger:
-        # Если страница не является целым числом,
-        # то доставить первую страницу
+        # If page is not an integer deliver the first page
         images = paginator.page(1)
     except EmptyPage:
         if images_only:
-            # Если AJAX-запрос и страница вне диапазона,
-            # то вернуть пустую страницу
+            # If AJAX request and page out of range
+            # return an empty page
             return HttpResponse('')
-        # Если страница вне диапазона,
-        # то вернуть последнюю страницу результатов
+        # If page out of range return last page of results
         images = paginator.page(paginator.num_pages)
     if images_only:
         return render(request, 'images/image/list_images.html', {'section': 'images', 'images': images})
